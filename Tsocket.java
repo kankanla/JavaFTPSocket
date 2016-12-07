@@ -12,8 +12,10 @@ class Tsocket {
 	public static void main(String[] args) {
 		try {
 			UFTP u = new UFTP("192.168.11.10", "user", "user");
+			UFTP u = new UFTP("xxxx.web.fc2.com", "xxxx", "xxxx");
 			String code = u.FTPconnect();
 			File[] fs = new File[] {new File("Sublime Text Build 3114 x64.zip"), new File("Sublime Text Build 3114 x64 (2).zip"), new File("npp.6.9.2.bin.zip"), new File("Sublime Text Build 3114.zip")};
+			// File[] fs = new File[] {new File("aa.xml"), new File("Dtest.java"), new File("ftp.java"), new File("main.java")};
 
 			if (code.equals("ConnectFTPServer")) {
 				u.upload(fs);
@@ -62,6 +64,7 @@ class UFTP {
 			String recode = new String();
 			while (true) {
 				recode = FTPCmdreader.readLine();
+				System.out.println(recode);
 				if (recode.substring(0, 3).equals("227")) {
 					temp = get227(recode);
 					break;
@@ -77,18 +80,24 @@ class UFTP {
 			while ( (len = upfileInputStream.read(buff) ) != -1) {
 				ftpOutputStream.write(buff, 0, len);
 				ftpOutputStream.flush();
+				System.out.print("*");
 			}
 			ftpOutputStream.close();
 			upfileInputStream.close();
-			Thread.sleep(1000);
+			System.out.println("");
+			Thread.sleep(5 * 1000);
 		}
 	}
 
 	public void close() {
 		try {
 			FTPcommand(FTPCmdwriter, "QUIT ");
+			String temp = null;
+			while ( (temp = FTPCmdreader.readLine() ) != null) {
+				System.out.println(temp);
+			}
+			System.out.println("");
 			FTPCmdwriter.close();
-			System.out.println(FTPCmdreader.readLine());
 			FTPCmdreader.close();
 		} catch (Exception e) {
 
