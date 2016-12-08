@@ -1,5 +1,3 @@
-
-
 import java.io.*;
 import java.net.*;
 
@@ -7,15 +5,17 @@ import java.net.*;
 file:///E:/api/index.html
 */
 
-
 class Tsocket {
 	public static void main(String[] args) {
 		try {
-			UFTP u = new UFTP("192.168.11.10", "user", "user");
-			UFTP u = new UFTP("xxxx.web.fc2.com", "xxxx", "xxxx");
+			// File[] fs = new File[] {new File("Sublime Text Build 3114 x64.zip"), new File("Sublime Text Build 3114 x64 (2).zip"), new File("npp.6.9.2.bin.zip"), new File("Sublime Text Build 3114.zip")};
+
+			File f = new File("E:\\Android");
+			File[] fs = f.listFiles() ;
+
+			// UFTP u = new UFTP("xxxx.web.fc2.com", "xxxx", "xxxx");
+			UFTP u = new UFTP("192.168.11.7", "guest", "guest");
 			String code = u.FTPconnect();
-			File[] fs = new File[] {new File("Sublime Text Build 3114 x64.zip"), new File("Sublime Text Build 3114 x64 (2).zip"), new File("npp.6.9.2.bin.zip"), new File("Sublime Text Build 3114.zip")};
-			// File[] fs = new File[] {new File("aa.xml"), new File("Dtest.java"), new File("ftp.java"), new File("main.java")};
 
 			if (code.equals("ConnectFTPServer")) {
 				u.upload(fs);
@@ -29,6 +29,7 @@ class Tsocket {
 		}
 	}
 }
+
 
 
 class UFTP {
@@ -59,33 +60,36 @@ class UFTP {
 
 	public void upload(File[] files) throws Exception {
 		for (int i = 0; i < files.length; i++) {
-			FTPcommand(FTPCmdwriter, "PASV ");
-			String[] temp = new String[] {};
-			String recode = new String();
-			while (true) {
-				recode = FTPCmdreader.readLine();
-				System.out.println(recode);
-				if (recode.substring(0, 3).equals("227")) {
-					temp = get227(recode);
-					break;
+			if (files[i].isFile()) {
+				FTPcommand(FTPCmdwriter, "PASV ");
+				String[] temp = new String[] {};
+				String recode = new String();
+				while (true) {
+					recode = FTPCmdreader.readLine();
+					System.out.println(recode);
+					if (recode.substring(0, 3).equals("227")) {
+						temp = get227(recode);
+						break;
+					}
 				}
+				Socket socket20 = new Socket(temp[0], Integer.parseInt(temp[1]));
+				OutputStream ftpOutputStream = socket20.getOutputStream();
+				FileInputStream upfileInputStream = new FileInputStream(files[i]);
+				FTPcommand(FTPCmdwriter, "TYPE " + "I");
+				FTPcommand(FTPCmdwriter, "STOR " + files[i].getName());
+				System.out.println("UPDATE Filename " + files[i].getName());
+				byte[] buff = new byte[1024 * 1024];
+				int len = 0;
+				while ( (len = upfileInputStream.read(buff) ) != -1) {
+					ftpOutputStream.write(buff, 0, len);
+					ftpOutputStream.flush();
+					System.out.print("*");
+				}
+				ftpOutputStream.close();
+				upfileInputStream.close();
+				System.out.println("");
+				Thread.sleep(5 * 1000);
 			}
-			Socket socket20 = new Socket(temp[0], Integer.parseInt(temp[1]));
-			OutputStream ftpOutputStream = socket20.getOutputStream();
-			FileInputStream upfileInputStream = new FileInputStream(files[i]);
-			FTPcommand(FTPCmdwriter, "TYPE " + "I");
-			FTPcommand(FTPCmdwriter, "STOR " + files[i].getName());
-			byte[] buff = new byte[20408];
-			int len = 0;
-			while ( (len = upfileInputStream.read(buff) ) != -1) {
-				ftpOutputStream.write(buff, 0, len);
-				ftpOutputStream.flush();
-				System.out.print("*");
-			}
-			ftpOutputStream.close();
-			upfileInputStream.close();
-			System.out.println("");
-			Thread.sleep(5 * 1000);
 		}
 	}
 
@@ -119,6 +123,4 @@ class UFTP {
 		String[] res = {ip, sport};
 		return res;
 	}
-
-
 }
